@@ -61,7 +61,7 @@ CALL bd_sample.SP_GUARDAR_FACTURA(
 	0 				        # p_totapagar
 );
 
-#Buscar id subscriptor
+#Buscar factura
 
 select * 
 from bd_sample.tbl_facturas
