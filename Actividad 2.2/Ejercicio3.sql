@@ -56,9 +56,9 @@ CALL bd_sample.SP_GUARDAR_FACTURA(
 	curdate(),    			# p_fecha_emision 
     12,				        # p_id_subscriptor			 
     0 ,				        # p_numero_items 
-	0 ,				        # p_numero_items
-	0 ,				        # p_numero_items
-	0 				        # p_numero_items
+	0 ,				        # p_isv_total
+	0 ,				        # p_subtotal
+	0 				        # p_totapagar
 );
 
 #Buscar id subscriptor
