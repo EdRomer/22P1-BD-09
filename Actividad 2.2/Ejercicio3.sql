@@ -1,4 +1,4 @@
-########################## EjerciciO No3 ############################################
+########################## EjerciciO No3 ############################################ Jose Danilo Rivera #202101607
 
 #Cree el procedimiento almacenado "sp_guardar_factura" que registre una  
 #nueva factura según los parámetros recibidos.
