@@ -2,7 +2,7 @@
 delimiter $$
 drop procedure if exists
 sp_guardar_producto$$
-creater procedure sp_guardar_producto
+CREATE PROCEDURE sp_guardar_producto()
  
 in nombreIN varchar(45);
 in descripcionIN varchar (45);
