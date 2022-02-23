@@ -22,3 +22,4 @@ BEGIN
     where id_subscriptor=v_idSubscriptor;
 commit;
 select * from tbl_subscriptores;
+END;
