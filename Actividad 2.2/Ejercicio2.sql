@@ -1,3 +1,5 @@
+::::::::::EJERCICIO # 2 :::::::::  KENDY HERNANDEZ
+
 
 delimiter $$
 drop procedure if exists
