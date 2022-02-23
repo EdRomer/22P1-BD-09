@@ -19,6 +19,6 @@ insert into tbl_productos (nombre,descripcion,precio_costo,precio_venta);
 values(nombreIN, descripcionIN,
 precio_costoIN,precio_ventaIN);
 
-commit;
+END;
 
 end $$
