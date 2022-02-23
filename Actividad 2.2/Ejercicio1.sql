@@ -20,5 +20,5 @@ BEGIN
     update tbl_subscriptores
 	set codigo_subscriptor=v_codSubscriptor, nombres=v_nomSubscriptor,apellidos=v_codSubscriptor
     where id_subscriptor=v_idSubscriptor;
-END;
+commit;
 select * from tbl_subscriptores;
