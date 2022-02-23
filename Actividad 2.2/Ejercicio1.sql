@@ -1,5 +1,5 @@
 delimiter //
-CREATE PROCEDURE sp_guardar_subscriptor((
+CREATE PROCEDURE sp_guardar_subscriptor(
 	in p_idSubscriptor int,
     in p_codSubscriptor int,
     in p_nombSubscriptor varchar(25),
