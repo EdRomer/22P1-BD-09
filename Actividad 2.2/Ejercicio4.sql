@@ -3,7 +3,7 @@ delimiter //
 CREATE PROCEDURE sp_procesar_factura(
     in p_id_factura int,
     in p_id_producto int,
-    in p_cantidad int,
+    in p_cantidad int
     
 )
 BEGIN
