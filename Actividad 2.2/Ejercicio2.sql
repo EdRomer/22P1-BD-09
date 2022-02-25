@@ -22,7 +22,7 @@ set v_precio_ventaIN = p_precio_ventaIN
 
 begin 
 set precio_ventaIN=precio_costoIN+
-(precio_costoIN*0.125);
+(precio_costoIN*0.25);
 
 insert into tbl_productos (nombre,descripcion,precio_costo,precio_venta);
 
