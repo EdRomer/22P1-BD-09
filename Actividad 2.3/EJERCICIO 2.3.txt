@@ -29,7 +29,7 @@ select now () into v_fecha_insercion;
 case
 when v_precioCosto between 0 and 3.99 then set v_porcentaje = 1.3 ;
 when v_precioCosto between 4 and 7.99 then set v_porcentaje = 1.5 ;
-when v_precioCosto  >=& then set v_porcentaje = 1.6 ;  end case ;
+when v_precioCosto  >= then set v_porcentaje = 1.6 ;  end case ;
 
            set v_precioVenta= v precioCosto + (v_precioCosto * v_porcentaje);
  ❏ if not exists (select id_producto from tbl productos = v_id_producto) then
