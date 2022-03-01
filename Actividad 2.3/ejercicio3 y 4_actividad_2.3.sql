@@ -1,4 +1,41 @@
+::::::::::::EJERICIO 2:::::::::::::  KENDY HERNANDEZ
 
+
+when v_preciocosto between  o and  3.99 then set v_porcentaje=1.3;
+
+when v_preciocosto between 4 and 7.99 then set v_porcentaje=1.5;
+
+when v_preciocosto>=& then set v_porcentaje= 1.6;
+end case;
+
+
+           set v_precioventa=v_preciocosto + (v_preciocosto * v_porcentaje);
+
+❏ if not exists (select id_producto from tbl_producto where id_producto= v_id_producto)
+
+insert into tbl_producto_hist (id_producto),
+nombre,descripcion,precio_costo, precio_venta, fecha_insercion)
+
+
+        values(v_id_producto, v_nombre,v_desripcion,v_precicosto,v_precioventa,v_fecha_insercion);
+
+
+else 
+  upadate tbl_producto set nombre= v_nombre,descripcion=
+
+v_descripcion,                    
+                                precio_costo=
+v_preciocosto,
+                                precio venta=
+
+v_precioventa
+                                where id_produto=
+
+
+v_id_producto;
+end if;
+commit;
+end$$
 
 ########################## EjerciciO No3 #################### Jose Danilo Rivera  202101607 ########################
 #3.Modifique el procedimiento "sp_procesar_factura" de manera que utilice el procedimiento sp_guardar_factura
