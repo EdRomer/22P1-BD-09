@@ -1,0 +1,38 @@
+delimiter //
+drop procedure if exists sp_tickets_promo//
+create procedure sp_tickets_promo
+(
+in p_fecha_inicio date,
+in p_fecha_fin date
+)
+begin
+declare v_fecha_incio date;
+declare v_fecha_fin date;
+declare v_idfactura int;
+declare v_numerorandom int;
+declare v_fechacreacion datetime;
+declare v_valor_min int;
+declare v_valor_max int;
+declare i int default 0;
+
+set v_fecha_incio = p_fecha_inicio;
+set v_fecha_fin = p_fecha_fin;
+
+select now() into v_fechacreacion;
+set v_valor_min = (select min(orden) from tbl_facturas_selectas);
+set v_valor_max = (select max(orden) from tbl_facturas_selectas);
+
+set i = v_valor_min;
+
+while i < v_valor_max + 1 do
+set v_numerorandom = ceil(rand()*(10000-0)+10000);
+  select id_factura 
+  into v_idfactura
+  from tbl_facturas_selectas
+  where fecha_emision between v_fecha_incio and v_fecha_fin
+        and orden = i;
+ insert into tbl_tickets_promo (idfactura, numero_random, fecha_creacion)
+ values (v_idfactura, v_numerorandom, v_fechacreacion);
+ set i = i+1;
+end while;
+end //
