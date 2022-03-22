@@ -1,4 +1,6 @@
-############################## EJERCICIO 3 ##############################################################
+##################################################################################################
+############################## EJERCICIO 3 #######################################################
+##################################################################################################
 #Crear un procedimiento para registrar un suscriptor. 
 #El proceso debe permitir que se registre los datos de un suscriptor. 
 #Al momento de registrarlo, se le debe asignar el ciclo de facturación con el día calendario 
@@ -10,6 +12,7 @@ select * from bd_platvideo.tbl_ciclos_facturacion;
 select * from bd_platvideo.tbl_cartera;
 select * from bd_platvideo.tbl_fact_detalle;
 drop procedure bd_platvideo.SP_CREAR_SUSCRIPTOR;
+drop procedure bd_platvideo.SP_FACTURA;
 
 
 delimiter //
@@ -74,26 +77,30 @@ delimiter //;
 # Ejecutar procedimiento 
 CALL bd_platvideo.SP_CREAR_SUSCRIPTOR(
 	null, 					# p_id_suscriptor  
-    'Laura',    			    # p_nombre 
-	'Rivera',				    # p_apellidos			 
+    'Mon',    			    # p_nombre 
+	'paz',				    # p_apellidos			 
 	24544589, 				    # p_telefono
-	'usuario56@umh.edu',    	    # p_email 
+	'usuario6@umh.edu',    	    # p_email 
 	'm0ri1745',				    # p_usuario			 
 	'clase1235', 				# p_contrasena
 	now(),                      # p_fechanacimiento 
-	15,				        # p_edad			 
-	'2022-03-10 13:02:16',   # p_fecha_ingreso
+	98,				        # p_edad			 
+	'2022-03-13 13:02:16',   # p_fecha_ingreso
     curdate(),				# p_fecha_modificacion			 
 	curdate()        		# p_fecha_ultima_act
     
 );
 
+###################################################################################################################
 ############################################# EJERCICO 1 ###########################################################
+####################################################################################################################
+
 #Funciones almacenadas
 #Crear una función almacenada que devuelva el valor real o valor porcentual (según se indique) 
 #de una tarifa que se encuentre en la tabla tarifas.
 drop procedure bd_platvideo.SP_CREAR_TARIFA;
 select * from bd_platvideo.tbl_tarifas;
+select * from bd_platvideo.tbl_suscriptores;
 delimiter //
 CREATE PROCEDURE bd_platvideo.SP_CREAR_TARIFA(
     in p_id                 int,
@@ -125,12 +132,14 @@ END;
 
 CALL bd_platvideo.SP_CREAR_TARIFA(
 
-   4,    #p_id
-   'real'    #p_valor
+   1,    #p_id
+   'porcentual'    #p_valor
 
 );
 
-################################ Ejercicio 2 ############################################################
+#######################################################################################################
+##################################### Ejercicio 2 ######################################################################
+#######################################################################################################
 #Procedimientos almacenados:
 #Crear un procedimiento almacenado para generar facturas. 
 #Una factura se genera a partir de una orden activa en la cartera. 
@@ -141,6 +150,77 @@ CALL bd_platvideo.SP_CREAR_TARIFA(
 #por el cliente, así como el monto y los cálculos respectivos. Para aquellos clientes que apliquen, 
 #considerar ingresar un cargo por descuento de tercera edad.
 
+
+drop procedure bd_platvideo.SP_GESTIONAR_DETALLE_FACT;
+delimiter //
+CREATE PROCEDURE bd_platvideo.SP_GESTIONAR_DETALLE_FACT(
+    in p_id_cargo 	             int,
+    in p_id_factura              int
+)
+
+BEGIN
+    declare v_id_cargo           int;
+    declare v_titulo             varchar(45);
+    declare v_id_factura         int;
+    declare v_subtotal_pagar     decimal(12,2);
+    declare v_isv_total          decimal(12,2);
+    declare v_total_pagar        decimal(12,2);
+    declare v_idorden            decimal(12,2);
+    declare v_total_unidades     int;
+    declare v_id_cat             int;
+    declare v_fecha_ingreso      datetime;
+    declare v_fecha_pago         datetime;
+    declare v_estado             varchar(45);
+    declare mensaje              varchar(400);
+    declare aux                  int;
+            
+  
+    set mensaje =    'no esta habilitada ';
+    
+	select subtotal_pagar,total_unidades, isv_total, total_pagar, idorden 
+    into v_subtotal_pagar,v_total_unidades, v_isv_total, v_total_pagar, v_idorden 
+    from bd_platvideo.tbl_fact_resumen where id_factura = p_id_factura;
+    
+    select id_cat, fecha_ingreso,fecha_pago,estado 
+    into v_id_cat, v_fecha_ingreso, v_fecha_pago,v_estado 
+    from bd_platvideo.tbl_cartera where idorden = v_idorden;
+    
+    select id_cargo into v_id_cargo
+    from bd_platvideo.tbl_fact_cargos where id_cargo = p_id_cargo;
+    
+    select titulo into v_titulo
+    from bd_platvideo.tbl_catalogo where id_cat = v_id_cat;
+    set aux = bd_platvideo.dia(v_fecha_pago);
+    
+    
+    if v_estado = 'activo' then
+      if aux then
+			INSERT INTO bd_platvideo.tbl_fact_detalle(id_factura ,id_cargo, cantidad, concepto, monto, subtotal, isv, total_cargo,fecha_ingreso)
+			VALUES (p_id_factura, p_id_cargo, v_total_unidades, v_titulo, v_total_unidades, v_subtotal_pagar,v_isv_total,v_total_pagar, v_fecha_ingreso);
+	  else 
+           select mensaje; 
+	  end if;
+	else
+			select mensaje;
+	end if;
+	
+END;
+
+CALL   bd_platvideo.SP_GESTIONAR_DETALLE_FACT(
+          3,                                    # p_id_cargo 	          
+		  12                                    # p_id_factura
+);
+
+select * from bd_platvideo.tbl_fact_cargos;
+select * from bd_platvideo.tbl_cartera;
+select * from bd_platvideo.tbl_fact_resumen;
+select * from bd_platvideo.tbl_fact_detalle;
+select * from bd_platvideo.tbl_catalogo;
+
+#########################################################################################################
+################################ Insertar Factura ############################################################
+#########################################################################################################
+drop procedure bd_platvideo.SP_FACTURA_RESUMEN;
 select * from bd_platvideo.tbl_cartera;
 select * from bd_platvideo.tbl_fact_detalle;
 select * from bd_platvideo.tbl_fact_resumen;
@@ -166,6 +246,8 @@ BEGIN
     declare v_id_cat                  int; 
     declare v_conteo_catalogo         int;
     declare v_suma_costo              decimal(12,2);
+    declare v_edad                    int;
+    declare v_id_suscriptor           int;
     
     set v_id_factura =               p_id_factura;
 	set v_fecha_emision =	         p_fecha_emision;
@@ -173,20 +255,33 @@ BEGIN
 	set v_tipo_pago   =              p_tipo_pago ;
     set mensaje =                    'no esta habilitada en cartera';
     
-    select estado, id_cat into v_estado,v_id_cat  from bd_platvideo.tbl_cartera where idorden = p_idorden ;
+    select estado, id_cat,id_suscriptor into v_estado,v_id_cat,v_id_suscriptor  from bd_platvideo.tbl_cartera where idorden = p_idorden ;
     select count(id_cat),sum(costo) into v_conteo_catalogo,v_suma_costo from bd_platvideo.tbl_catalogo where id_cat = v_id_cat;
+    select edad into v_edad from bd_platvideo.tbl_suscriptores where id_suscriptor = v_id_suscriptor;
+    
     
     if v_estado = 'activo' then
 		insert into bd_platvideo.tbl_fact_resumen(id_factura, fecha_emision,fecha_vencimiento, 
                     tipo_pago,idorden )
 		values (v_id_factura,v_fecha_emision,v_fecha_vencimiento,v_tipo_pago,p_idorden );
         
-        update bd_platvideo.tbl_fact_resumen
-        set  total_unidades = v_conteo_catalogo,
-             subtotal_pagar = v_suma_costo,
-             isv_total = v_suma_costo*0.15,
-             total_pagar = v_suma_costo*1.15
-		where idorden = p_idorden;
+        if v_edad < 60   then
+        
+			update bd_platvideo.tbl_fact_resumen
+			set  total_unidades = v_conteo_catalogo,
+				 subtotal_pagar = v_suma_costo,
+				 isv_total = v_suma_costo*0.15,
+				 total_pagar = v_suma_costo*1.15
+			where idorden = p_idorden;
+		else 
+            update bd_platvideo.tbl_fact_resumen
+			set  total_unidades = v_conteo_catalogo,
+				 subtotal_pagar = v_suma_costo,
+				 isv_total = v_suma_costo*0.15,
+				 total_pagar = (v_suma_costo*1.15)-((v_suma_costo*1.15)*0.05)
+			where idorden = p_idorden;
+	    end if;
+            
 	else 
         select mensaje;
 	end if;
@@ -196,89 +291,20 @@ END;
 CALL  bd_platvideo.SP_FACTURA_RESUMEN(
          null,                              # p_idfactura
 		now(),                              # p_fecha_emision 	          
-		'2022-03-31 13:02:16',              # p_fecha_vencimiento          
-		'Tarjeta credito',					# p_tipo_pago   
-			9							    #p_orden
+		curdate(),                         # p_fecha_vencimiento          
+		'Pago efectivo',					# p_tipo_pago   
+			20							    #p_idorden
 );
-##################################### Ejercicio 2 ######################################################################
-
-drop procedure bd_platvideo.SP_GESTIONAR_DETALLE_FACT;
-delimiter //
-CREATE PROCEDURE bd_platvideo.SP_GESTIONAR_DETALLE_FACT(
-    in p_id_cargo 	             int,
-    in p_id_factura              int,
-    in p_dia_ciclo               int
-)
-
-BEGIN
-    declare v_id_cargo           int;
-    declare v_titulo             varchar(45);
-    declare v_id_factura         int;
-    declare v_subtotal_pagar     decimal(12,2);
-    declare v_isv_total          decimal(12,2);
-    declare v_total_pagar        decimal(12,2);
-    declare v_idorden            decimal(12,2);
-    declare v_total_unidades     int;
-    declare v_id_cat             int;
-    declare v_fecha_ingreso      datetime;
-    declare v_fecha_pago         datetime;
-    declare v_estado             varchar(45);
-    declare mensaje              varchar(400);
-  
-    set mensaje =    'no esta habilitada ';
-    
-	select subtotal_pagar,total_unidades, isv_total, total_pagar, idorden 
-    into v_subtotal_pagar,v_total_unidades, v_isv_total, v_total_pagar, v_idorden 
-    from bd_platvideo.tbl_fact_resumen where id_factura = p_id_factura;
-    
-    select id_cat, fecha_ingreso,fecha_pago,estado 
-    into v_id_cat, v_fecha_ingreso, v_fecha_pago,v_estado 
-    from bd_platvideo.tbl_cartera where idorden = v_idorden;
-    
-    select id_cargo into v_id_cargo  
-    from bd_platvideo.tbl_fact_cargos where id_cargo = p_id_cargo;
-    
-    select titulo into v_titulo
-    from bd_platvideo.tbl_catalogo where id_cat = v_id_cat;
-    
-    if v_estado = 'activo' then
-		if day(v_fecha_pago) = p_dia_ciclo   then
-			INSERT INTO bd_platvideo.tbl_fact_detalle(id_factura ,id_cargo, cantidad, concepto, monto, subtotal, isv, total_cargo,fecha_ingreso)
-			VALUES (p_id_factura, p_id_cargo, v_total_unidades, v_titulo, v_total_unidades, v_subtotal_pagar,v_isv_total,v_total_pagar, v_fecha_ingreso);
-		else
-			select mensaje;
-		end if;
-	else 
-            select mensaje;
-	end if;
-
-END;
-
-CALL   bd_platvideo.SP_GESTIONAR_DETALLE_FACT(
-          5,                                    # p_id_cargo 	          
-		  1,                                    # p_id_factura
-          31                                     #p_dia_ciclo
-);
-
-select * from bd_platvideo.tbl_fact_cargos;
-select * from bd_platvideo.tbl_cartera;
-select * from bd_platvideo.tbl_fact_resumen;
-select * from bd_platvideo.tbl_fact_detalle;
-select * from bd_platvideo.tbl_catalogo;
 
 
 ################################################################################################
 ###############################################################################################
 ###############################################################################################
-############################ ejercicio 4 ###############################################################
+############################ Procesos y funciones auxiliares ###############################################################
 
-#Crear un procedimiento para gestionar la cartera de un cliente. Es decir, que permita crear,
-#actualizar y cancelar ordenes de un cliente especifico en la tabla cartera. Siempre y cuando
-# se cumpla con la siguiente norma: Se puede cancelar ordenes de clientes con ofertas de catálogo
-#gratuitos sin importar la antigüedad. Se pueden cancelar ordenes solo si el cliente no tiene 
- #facturas pendientes.
 select * from bd_platvideo.tbl_catalogo;
 select * from bd_platvideo.tbl_cartera;
+select * from bd_platvideo.tbl_suscriptores;
 drop procedure bd_platvideo.SP_GESTIONAR_CARTERA;
 
 delimiter //
@@ -316,17 +342,15 @@ END;
 
 CALL  bd_platvideo.SP_GESTIONAR_CARTERA(
          null,                                  # p_idorden
-          4,                                    # p_id_cat 	          
-          14,                                    # p_id_suscriptor         
+          17,                                    # p_id_cat 	          
+          50,                                    # p_id_suscriptor         
          curdate(),                             # p_fecha_ingreso         
-		'2022-03-31 13:02:16',					# p_fecha_pago            
+		'2022-05-15 13:02:16',					# p_fecha_pago            
 		'activo'								# p_estado                  
 );
 
-######################################### Ejercicio 5 ###############################################################
-#Crear un procedimiento almacenado para gestionar el catálogo de productos permitiendo crear, 
-#actualizar o desactivar catálogos. Además, en el mismo procedimiento debe permitir agregar
-# o quitar productos al catálogo.
+######################################### Gestion catalogo  ###############################################################
+
 select * from bd_platvideo.tbl_catalogo;
 select * from bd_platvideo.tbl_cartera;
 select * from bd_platvideo.tbl_productos;
@@ -368,21 +392,21 @@ END;
 
 CALL  bd_platvideo.SP_GESTIONAR_CATALOGO(
          null,                                     # p_id_cat 	          
-         'Autos',                                 # p_titulo
-         'gratuito',                                #p_descripcion
-         33.50,                                     #p_costo
-         52226.0,                                      #p_precio_venta
+         'Cuadernos',                                 # p_titulo
+         'basico',                                #p_descripcion
+         92.70,                                     #p_costo
+         100.0,                                      #p_precio_venta
          curdate(),                                 # p_fecha_inicio         
 		'2022-03-30 13:02:16'					    # p_fecha_fin            
 );
 ##############################################################################################
-################################################################################################
+######################################FUNCIONES AUXILIARES##########################################################
 ###############################################################################################
 select * from bd_platvideo.tbl_ciclos_facturacion;
 drop function bd_platvideo.id_ciclo;
+drop function bd_platvideo.dia;
 drop function bd_platvideo.id_valor;
 drop function bd_platvideo.id_result;
-drop procedure bd_platvideo.SP_Clasificacion;
 drop trigger tg_indice;
 drop trigger tg_id1;
 delimiter //
@@ -408,7 +432,7 @@ END;
 
 select bd_platvideo.id_ciclo(21)
 delimiter //;
-
+#################################################################################################
 delimiter //
 CREATE FUNCTION bd_platvideo.id_result(
     v_fecha_ingreso datetime
@@ -432,7 +456,7 @@ END;
 select bd_platvideo.id_result('2022-03-28 13:02:16')
 delimiter //;
 
-################################################## Ejercicio 1 ################
+##############################################################################################
 
 delimiter //
 CREATE FUNCTION bd_platvideo.id_valor(
@@ -453,3 +477,35 @@ BEGIN
 END;
 
 delimiter //;
+
+########################################################################################################
+
+delimiter //
+CREATE FUNCTION bd_platvideo.dia(
+    p_fecha_pago datetime
+)RETURNS INT DETERMINISTIC
+  
+BEGIN
+	declare v_dia   int;
+    declare v_fecha  int;
+    set v_fecha = day(p_fecha_pago);
+	if v_fecha = 05 then
+        return TRUE;
+	elseif v_fecha = 15 then
+        return TRUE;
+	elseif v_fecha = 20 then
+        return TRUE;
+	elseif v_fecha = 25 then
+        return TRUE;
+    elseif v_fecha = 30 then
+        return v_fecha;
+	else 
+       return FALSE;
+	end if;
+
+END;
+select bd_platvideo.dia('2022-03-09 13:02:16')
+
+####################################################################################################
+
+
